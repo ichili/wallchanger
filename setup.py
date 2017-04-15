@@ -1,7 +1,7 @@
 from distutils.core import setup
 
 setup(
-    name='Wallchanger',
+    name='wallchanger',
     version='0.1a',
     packages=[''],
     url='',
