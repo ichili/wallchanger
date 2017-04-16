@@ -5,36 +5,16 @@ import downloader
 import wallset
 import os.path
 import log
-import configparser
+import config_manager
 from wallhaven import Wallhaven
-
-
-def read_config():
-    config = configparser.ConfigParser()
-    try:
-        config.read_file(open('settings.cfg'))
-    except:
-        return None
-    options = config['All']
-    settings = {}
-    settings['path'] = options['ImagesDirectory']
-    settings['count'] = int(options['count'])
-    return settings
-
-
-def setup_logger():
-    logpath = os.path.dirname(sys.argv[0])
-    logpath = os.path.join(logpath, 'log.txt')
-    logger = log.setup_custom_logger('glogger', logpath)
-    return logger
 
 
 def download(path, count):
     client = Wallhaven()
     urls = client.get_random(count=count)
     for url in urls:
-        fname = url.split('/')[-1]
-        file = os.path.join(path, fname)
+        filename = url.split('/')[-1]
+        file = os.path.join(path, filename)
         downloader.download(url, file)
 
 
@@ -42,15 +22,17 @@ def set_wallpaper(path):
     wallset.set_wallpaper(path)
 
 
+def setup_logger():
+    log.setup_global_logger()
+
+
 def main():
-    conf = read_config()
-    if not conf:
-        sys.exit(1)
-    path = conf['path']
-    count = conf['count']
+    config = config_manager.read_config()
     setup_logger()
-    schedule.every(5).minutes.do(lambda: set_wallpaper(path))
-    schedule.every(60).minutes.do(lambda: download(path, count))
+    change_wallpaper = lambda: set_wallpaper(config['path'])
+    download_new_wallpapers = lambda: download(config['path'], config['count'])
+    schedule.every(5).minutes.do(change_wallpaper)
+    schedule.every(60).minutes.do(download_new_wallpapers)
     schedule.run_all()
     while 1:
         schedule.run_pending()
