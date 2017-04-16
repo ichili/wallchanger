@@ -31,8 +31,10 @@ def main():
     setup_logger()
     change_wallpaper = lambda: set_wallpaper(config['path'])
     download_new_wallpapers = lambda: download(config['path'], config['count'])
-    schedule.every(5).minutes.do(change_wallpaper)
-    schedule.every(60).minutes.do(download_new_wallpapers)
+    change_interval = config['changeInterval']
+    download_interval = config['downloadInterval']
+    schedule.every(change_interval).seconds.do(change_wallpaper)
+    schedule.every(download_interval).seconds.do(download_new_wallpapers)
     schedule.run_all()
     while 1:
         schedule.run_pending()

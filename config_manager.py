@@ -10,6 +10,8 @@ def _read_defaults():
     settings = dict()
     settings['ImagesDirectory'] = path
     settings['count'] = 10
+    settings['changeInterval'] = 300
+    settings['downloadInterval'] = 3600
     return settings
 
 
@@ -35,6 +37,8 @@ def read_config():
         options = config['all']
         settings['path'] = options['ImagesDirectory']
         settings['count'] = int(options['count'])
+        settings['changeInterval'] = int(options['changeInterval'])
+        settings['downloadInterval'] = int(options['downloadInterval'])
     return settings
 
 
