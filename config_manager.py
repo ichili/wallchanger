@@ -24,6 +24,14 @@ def write_default_config():
         logger.exception('Unable to write configuration file')
 
 
+def check_config():
+    import os.path
+    import sys
+    directory = os.path.dirname(sys.argv[0])
+    file = os.path.join(directory, 'settings.cfg')
+    if not os.path.isfile(file):
+        write_default_config()
+
 def read_config():
     settings = _read_defaults()
     try:
@@ -31,6 +39,7 @@ def read_config():
             config_string = '[all]\n' + f.read()
     except OSError:
         logger.exception('Cannot access configuration file. Using default values.')
+        check_config()
     else:
         config = configparser.ConfigParser()
         config.read_string(config_string)
