@@ -16,11 +16,12 @@ class Downloader(object):
 
     def download(self, url, location):
         logger = logging.getLogger('glogger')
-        if not os.path.isdir(location):
+        directory = os.path.dirname(location)
+        if not os.path.isdir(directory):
             try:
-                makedirs(location)
+                makedirs(directory)
             except:
-                logger.exception('Cannot create directory: ' + location)
+                logger.exception('Cannot create directory: ' + directory)
                 return
         try:
             urllib.request.urlretrieve(url, location)
