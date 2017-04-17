@@ -14,7 +14,6 @@ class Manager(object):
         self.downloader = Downloader()
         self.settings = settings
         self._setup_schedule()
-        schedule.run_all()
 
     def _setup_schedule(self):
         change_interval = self.settings['changeInterval']
@@ -46,14 +45,19 @@ class Manager(object):
     def run_pending(self):
         schedule.run_pending()
 
+    def run_all(self):
+        schedule.run_all()
+
+
 def setup_logger():
     setup_global_logger()
 
 
 def console_run():
     manager = setup_manager()
+    manager.run_all()
     while 1:
-        schedule.run_pending()
+        manager.run_pending()
         minInterval = min(manager.settings['changeInterval'], manager.settings['downloadInterval'])
         time.sleep(minInterval // 3)
 
