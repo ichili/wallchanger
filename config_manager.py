@@ -1,6 +1,7 @@
 import configparser
 import logging
-
+import sys
+import os.path
 
 def _read_defaults():
     import sys
@@ -8,7 +9,7 @@ def _read_defaults():
     path = os.path.dirname(sys.argv[0])
     path = os.path.join(path, 'Images')
     settings = dict()
-    settings['ImagesDirectory'] = path
+    settings['path'] = path
     settings['count'] = 10
     settings['changeInterval'] = 300
     settings['downloadInterval'] = 3600
@@ -36,7 +37,9 @@ def check_config():
 def read_config():
     settings = _read_defaults()
     try:
-        with open('settings.cfg', 'r') as f:
+        path = os.path.dirname(sys.argv[0])
+        path = os.path.join(path, 'settings.cfg')
+        with open(path, 'r') as f:
             config_string = '[all]\n' + f.read()
     except OSError:
         logger.exception('Cannot access configuration file. Using default values.')
@@ -49,6 +52,7 @@ def read_config():
         settings['count'] = int(options['count'])
         settings['changeInterval'] = int(options['changeInterval'])
         settings['downloadInterval'] = int(options['downloadInterval'])
+    print(settings)
     return settings
 
 

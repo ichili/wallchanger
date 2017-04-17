@@ -25,7 +25,10 @@ class Changer(object):
                 files.extend(fn)
         except OSError:
             self.logger.exception('Error on accessing images directory')
-        return random.choice(files)
+        if files != []:
+            return random.choice(files)
+        else:
+            return ''
 
     def set_wallpaper(self, path):
         file = self.choose_wallpaper(path)
