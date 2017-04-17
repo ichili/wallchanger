@@ -51,7 +51,6 @@ def read_config():
         settings['count'] = int(options['count'])
         settings['changeInterval'] = int(options['changeInterval'])
         settings['downloadInterval'] = int(options['downloadInterval'])
-    print(settings)
     return settings
 
 
