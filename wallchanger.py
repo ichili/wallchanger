@@ -41,6 +41,7 @@ class Manager(object):
 
     def delete(self):
         self.changer.delete()
+        self.next()
 
     def run_pending(self):
         schedule.run_pending()
