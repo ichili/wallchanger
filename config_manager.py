@@ -32,6 +32,7 @@ def check_config():
     if not os.path.isfile(file):
         write_default_config()
 
+
 def read_config():
     settings = _read_defaults()
     try:
