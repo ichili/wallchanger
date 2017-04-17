@@ -5,28 +5,38 @@ import logging
 from os import walk
 
 
-def _set_wallpaper(path):
-    try:
-        SPI_SETDESKWALLPAPER = 20
-        ctypes.windll.user32.SystemParametersInfoW(SPI_SETDESKWALLPAPER, 0, path, 3)
-    except:
-        logger.exception('Error appeared while setting desktop wallpaper')
+class Changer(object):
+    def __init__(self):
+        self.logger = logging.getLogger('glogger')
 
+    def _set_wallpaper(self, path):
+        try:
+            SPI_SETDESKWALLPAPER = 20
+            ctypes.windll.user32.SystemParametersInfoW(SPI_SETDESKWALLPAPER, 0, path, 3)
+        except:
+            self.logger.exception('Error appeared while setting desktop wallpaper')
+        else:
+            self._current = path
 
-def choose_wallpaper(path):
-    files = []
-    try:
-        for (dp, dn, fn) in walk(path):
-            files.extend(fn)
-    except OSError:
-        logger.exception('Error on acessing images directory')
-    return random.choice(files)
+    def choose_wallpaper(self, path):
+        files = []
+        try:
+            for (dp, dn, fn) in walk(path):
+                files.extend(fn)
+        except OSError:
+            self.logger.exception('Error on accessing images directory')
+        return random.choice(files)
 
+    def set_wallpaper(self, path):
+        file = self.choose_wallpaper(path)
+        file = os.path.join(path, file)
+        self._set_wallpaper(file)
 
-def set_wallpaper(path):
-    file = choose_wallpaper(path)
-    file = os.path.join(path, file)
-    _set_wallpaper(file)
+    def next(self, directory):
+        self.set_wallpaper(directory)
 
-
-logger = logging.getLogger('glogger')
+    def delete(self):
+        try:
+            os.remove(self._current)
+        except:
+            self.logger.exception('Unable to remove file ' + self._current)
