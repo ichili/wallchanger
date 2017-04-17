@@ -1,45 +1,67 @@
-import sys
 import schedule
 import time
-import downloader
-import wallset
 import os.path
-import log
 import config_manager
+from log import setup_global_logger
 from wallhaven import Wallhaven
+from downloader import Downloader
+from wallset import Changer
 
 
-def download(path, count):
-    client = Wallhaven()
-    urls = client.get_random(count=count)
-    for url in urls:
-        filename = url.split('/')[-1]
-        file = os.path.join(path, filename)
-        downloader.download(url, file)
+class Manager(object):
+    def __init__(self, settings):
+        self.changer = Changer()
+        self.downloader = Downloader()
+        self.settings = settings
+        self._setup_schedule()
+        schedule.run_all()
 
+    def _setup_schedule(self):
+        change_interval = self.settings['changeInterval']
+        download_interval = self.settings['downloadInterval']
+        self._next = schedule.every(change_interval).seconds.do(self.change)
+        self._download_more = schedule.every(download_interval).seconds.do(self.download)
 
-def set_wallpaper(path):
-    wallset.set_wallpaper(path)
+    def download(self):
+        client = Wallhaven()
+        urls = client.get_random(count=self.settings['count'])
+        for url in urls:
+            filename = url.split('/')[-1]
+            file = os.path.join(self.settings['path'], filename)
+            self.downloader.download(url, file)
 
+    def change(self):
+        self.changer.next(self.settings['path'])
+
+    def download_more(self):
+        self._download_more.run()
+
+    def next(self):
+        self._next.run()
+
+    def delete(self):
+        self.changer.delete()
+
+    def run_pending(self):
+        schedule.run_pending()
 
 def setup_logger():
-    log.setup_global_logger()
+    setup_global_logger()
 
 
-def main():
-    config = config_manager.read_config()
-    setup_logger()
-    change_wallpaper = lambda: set_wallpaper(config['path'])
-    download_new_wallpapers = lambda: download(config['path'], config['count'])
-    change_interval = config['changeInterval']
-    download_interval = config['downloadInterval']
-    schedule.every(change_interval).seconds.do(change_wallpaper)
-    schedule.every(download_interval).seconds.do(download_new_wallpapers)
-    schedule.run_all()
+def console_run():
+    manager = setup_manager()
     while 1:
         schedule.run_pending()
-        time.sleep(5)
+        minInterval = min(manager.settings['changeInterval'], manager.settings['downloadInterval'])
+        time.sleep(minInterval // 3)
+
+
+def setup_manager():
+    setup_logger()
+    config = config_manager.read_config()
+    return Manager(config)
 
 
 if __name__ == '__main__':
-    main()
+    console_run()
