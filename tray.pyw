@@ -59,6 +59,7 @@ def main():
     setup_global_logger()
     manager = setup_manager()
     TaskBarIcon(manager)
+    manager.run_all()
     app.MainLoop()
 
 
