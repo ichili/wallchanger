@@ -1,5 +1,7 @@
 import urllib.request
 import logging
+import os.path
+from os import makedirs
 
 
 class Downloader(object):
@@ -14,6 +16,12 @@ class Downloader(object):
 
     def download(self, url, location):
         logger = logging.getLogger('glogger')
+        if not os.path.isdir(location):
+            try:
+                makedirs(location)
+            except:
+                logger.exception('Cannot create directory: ' + location)
+                return
         try:
             urllib.request.urlretrieve(url, location)
         except:
