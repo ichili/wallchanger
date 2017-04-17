@@ -9,6 +9,11 @@ from downloader import Downloader
 from wallset import Changer
 
 
+def run_threaded(job_func):
+    job_thread = threading.Thread(target=job_func, daemon=True)
+    job_thread.start()
+
+
 class Manager(object):
     def __init__(self, settings):
         self.changer = Changer()
@@ -17,10 +22,6 @@ class Manager(object):
         self._setup_schedule()
 
     def _setup_schedule(self):
-        def run_threaded(job_func):
-            job_thread = threading.Thread(target=job_func, daemon=True)
-            job_thread.start()
-
         change_interval = self.settings['changeInterval']
         download_interval = self.settings['downloadInterval']
         self._next = schedule.every(change_interval).seconds.do(run_threaded, self.change)
@@ -44,7 +45,7 @@ class Manager(object):
         self._next.run()
 
     def delete(self):
-        self.changer.delete()
+        run_threaded(self.changer.delete)
         self.next()
 
     def run_pending(self):
