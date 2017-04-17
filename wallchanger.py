@@ -1,5 +1,6 @@
 import schedule
 import time
+import threading
 import os.path
 import config_manager
 from log import setup_global_logger
@@ -16,10 +17,14 @@ class Manager(object):
         self._setup_schedule()
 
     def _setup_schedule(self):
+        def run_threaded(job_func):
+            job_thread = threading.Thread(target=job_func, daemon=True)
+            job_thread.start()
+
         change_interval = self.settings['changeInterval']
         download_interval = self.settings['downloadInterval']
-        self._next = schedule.every(change_interval).seconds.do(self.change)
-        self._download_more = schedule.every(download_interval).seconds.do(self.download)
+        self._next = schedule.every(change_interval).seconds.do(run_threaded, self.change)
+        self._download_more = schedule.every(download_interval).seconds.do(run_threaded, self.download)
 
     def download(self):
         client = Wallhaven()
