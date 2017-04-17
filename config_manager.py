@@ -3,6 +3,7 @@ import logging
 import sys
 import os.path
 
+
 def _read_defaults():
     path = os.path.dirname(sys.argv[0])
     path = os.path.join(path, 'Images')
