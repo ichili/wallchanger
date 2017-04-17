@@ -4,8 +4,6 @@ import sys
 import os.path
 
 def _read_defaults():
-    import sys
-    import os.path
     path = os.path.dirname(sys.argv[0])
     path = os.path.join(path, 'Images')
     settings = dict()
